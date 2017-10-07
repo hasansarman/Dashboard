@@ -1,4 +1,6 @@
-<?php namespace Modules\Dashboard\Composers;
+<?php
+
+namespace Modules\Dashboard\Composers;
 
 use Illuminate\Contracts\View\View;
 

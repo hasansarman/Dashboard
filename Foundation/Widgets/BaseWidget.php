@@ -1,4 +1,9 @@
-<?php namespace Modules\Dashboard\Foundation\Widgets;
+<?php
+
+namespace Modules\Dashboard\Foundation\Widgets;
+
+use Illuminate\Contracts\View\Factory;
+use Modules\Dashboard\Composers\WidgetViewComposer;
 
 abstract class BaseWidget
 {
@@ -7,9 +12,9 @@ abstract class BaseWidget
      */
     public function boot()
     {
-        $widgetViewComposer = app('Modules\Dashboard\Composers\WidgetViewComposer');
-        /** @var \Illuminate\Contracts\View\Factory $view */
-        $view = app('Illuminate\Contracts\View\Factory');
+        $widgetViewComposer = app(WidgetViewComposer::class);
+        /** @var Factory $view */
+        $view = app(Factory::class);
 
         if ($view->exists($this->view())) {
             $html = $view->make($this->view())

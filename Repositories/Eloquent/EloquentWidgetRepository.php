@@ -1,5 +1,8 @@
-<?php namespace Modules\Dashboard\Repositories\Eloquent;
+<?php
 
+namespace Modules\Dashboard\Repositories\Eloquent;
+
+use App\Models\DashboardWidget;
 use Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
 use Modules\Dashboard\Repositories\WidgetRepository;
 
@@ -12,7 +15,8 @@ class EloquentWidgetRepository extends EloquentBaseRepository implements WidgetR
      */
     public function findForUser($userId)
     {
-        return $this->model->whereUserId($userId)->first();
+        return DashboardWidget::where("USER_ID",$userId)->first();
+        //return $this->model->whereUserId($userId)->first();
     }
 
     /**
@@ -25,9 +29,9 @@ class EloquentWidgetRepository extends EloquentBaseRepository implements WidgetR
         $widget = $this->findForUser($userId);
 
         if ($widget) {
-            return $this->update($widget, ['widgets' => $widgets]);
+            return $this->update($widget, ['WIDGETS' => $widgets]);
         }
 
-        return $this->create(['widgets' => $widgets, 'user_id' => $userId]);
+        return $this->create(['WIDGETS' => $widgets, 'USER_ID' => $userId]);
     }
 }

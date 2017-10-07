@@ -1,4 +1,6 @@
-<?php namespace Modules\Dashboard\Repositories;
+<?php
+
+namespace Modules\Dashboard\Repositories;
 
 use Modules\Core\Repositories\BaseRepository;
 

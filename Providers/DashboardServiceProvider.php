@@ -1,13 +1,21 @@
-<?php namespace Modules\Dashboard\Providers;
+<?php
+
+namespace Modules\Dashboard\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Modules\Core\Events\BuildingSidebar;
+use Modules\Core\Traits\CanGetSidebarClassForModule;
+use Modules\Core\Traits\CanPublishConfiguration;
 use Modules\Dashboard\Entities\Widget;
+use Modules\Dashboard\Events\Handlers\RegisterDashboardSidebar;
 use Modules\Dashboard\Repositories\Cache\CacheWidgetDecorator;
 use Modules\Dashboard\Repositories\Eloquent\EloquentWidgetRepository;
+use Modules\Dashboard\Repositories\WidgetRepository;
 use Modules\Workshop\Manager\StylistThemeManager;
 
 class DashboardServiceProvider extends ServiceProvider
 {
+    use CanPublishConfiguration, CanGetSidebarClassForModule;
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -22,17 +30,19 @@ class DashboardServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(
-            'Modules\Dashboard\Repositories\WidgetRepository',
-            function () {
-                $repository = new EloquentWidgetRepository(new Widget());
+        $this->app->bind(WidgetRepository::class, function () {
+            $repository = new EloquentWidgetRepository(new Widget());
 
-                if (! config('app.cache')) {
-                    return $repository;
-                }
-
-                return new CacheWidgetDecorator($repository);
+            if (! config('app.cache')) {
+                return $repository;
             }
+
+            return new CacheWidgetDecorator($repository);
+        });
+
+        $this->app['events']->listen(
+            BuildingSidebar::class,
+            $this->getSidebarClassForModule('dashboard', RegisterDashboardSidebar::class)
         );
     }
 
@@ -44,12 +54,12 @@ class DashboardServiceProvider extends ServiceProvider
 
         $this->app['view']->prependNamespace(
             'dashboard',
-            base_path('resources/views/asgard/dashboard')
-        );
-        $this->app['view']->prependNamespace(
-            'dashboard',
             $theme->find(config('asgard.core.core.admin-theme'))->getPath() . '/views/modules/dashboard'
         );
+
+        $this->publishConfig('dashboard', 'permissions');
+        $this->publishConfig('dashboard', 'config');
+        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
     }
 
     /**

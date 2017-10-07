@@ -1,11 +1,13 @@
-<?php namespace Modules\Dashboard\Http\Controllers\Admin;
+<?php
+
+namespace Modules\Dashboard\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use Modules\Core\Contracts\Authentication;
 use Modules\Core\Http\Controllers\Admin\AdminBaseController;
 use Modules\Dashboard\Repositories\WidgetRepository;
-use Pingpong\Modules\Repository;
+use Modules\User\Contracts\Authentication;
+use Nwidart\Modules\Repository;
 
 class DashboardController extends AdminBaseController
 {
@@ -39,11 +41,11 @@ class DashboardController extends AdminBaseController
     {
         $this->requireAssets();
 
-        $widget = $this->widget->findForUser($this->auth->check()->id);
+        $widget = $this->widget->findForUser($this->auth->id());
 
         $customWidgets = json_encode(null);
         if ($widget) {
-            $customWidgets = $widget->widgets;
+            $customWidgets = $widget->WIDGETS;
         }
 
         return view('dashboard::admin.dashboard', compact('customWidgets'));
@@ -62,7 +64,7 @@ class DashboardController extends AdminBaseController
             return Response::json([false]);
         }
 
-        $this->widget->updateOrCreateForUser($widgets, $this->auth->check()->id);
+        $this->widget->updateOrCreateForUser($widgets, $this->auth->id());
 
         return Response::json([true]);
     }
@@ -72,7 +74,7 @@ class DashboardController extends AdminBaseController
      */
     public function reset()
     {
-        $widget = $this->widget->findForUser($this->auth->check()->id);
+        $widget = $this->widget->findForUser($this->auth->id());
 
         if (!$widget) {
             return redirect()->route('dashboard.index')->with('warning', trans('dashboard::dashboard.reset not needed'));
