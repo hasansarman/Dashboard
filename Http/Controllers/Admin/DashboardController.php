@@ -7,8 +7,10 @@ use Illuminate\Support\Facades\Response;
 use Modules\Core\Http\Controllers\Admin\AdminBaseController;
 use Modules\Dashboard\Repositories\WidgetRepository;
 use Modules\User\Contracts\Authentication;
-use Nwidart\Modules\Repository;
-
+use Nwidart\Modules\Contracts\RepositoryInterface;
+use Modules\Notification\Services\Notification;
+use \Modules\Notification\Repositories\NotificationRepository;
+use Auth;
 class DashboardController extends AdminBaseController
 {
     /**
@@ -19,20 +21,30 @@ class DashboardController extends AdminBaseController
      * @var Authentication
      */
     private $auth;
-
+    private $notification;
     /**
-     * @param Repository $modules
+     * @param RepositoryInterface $modules
      * @param WidgetRepository $widget
      * @param Authentication $auth
      */
-    public function __construct(Repository $modules, WidgetRepository $widget, Authentication $auth)
+    public function __construct(RepositoryInterface $modules, WidgetRepository $widget, Authentication $auth,NotificationRepository $notification)
     {
         parent::__construct();
         $this->bootWidgets($modules);
         $this->widget = $widget;
         $this->auth = $auth;
+        $this->notification=$notification;
     }
+    public function locale($locale){
+        SET_LOCALEXX($locale);
+        //
+        $segments = str_replace(url('/'), '', url()->previous());
+        $segments = array_filter(explode('/', $segments));
+        array_shift($segments);
+        array_unshift($segments, $locale);
 
+        return redirect()->to(implode('/', $segments));
+    }
     /**
      * Display the dashboard with its widgets
      * @return \Illuminate\View\View
@@ -43,12 +55,16 @@ class DashboardController extends AdminBaseController
 
         $widget = $this->widget->findForUser($this->auth->id());
 
+
+        //$foo=new \Modules\Notification\Repositories\NotificationRepository();
+        $notifications = $this->notification->allUnreadForUser(Auth::user()->id);
+//$this->notification->push('New subscription', 'Someone has subscribed!', 'fa fa-hand-peace-o text-green', route('admin.user.user.index'));
         $customWidgets = json_encode(null);
         if ($widget) {
-            $customWidgets = $widget->WIDGETS;
+            $customWidgets = $widget->widgets;
         }
 
-        return view('dashboard::admin.dashboard', compact('customWidgets'));
+        return view('dashboard::admin.dashboard', compact('customWidgets','notifications'));
     }
 
     /**
@@ -87,9 +103,9 @@ class DashboardController extends AdminBaseController
 
     /**
      * Boot widgets for all enabled modules
-     * @param Repository $modules
+     * @param RepositoryInterface $modules
      */
-    private function bootWidgets(Repository $modules)
+    private function bootWidgets(RepositoryInterface $modules)
     {
         foreach ($modules->enabled() as $module) {
             if (! $module->widgets) {

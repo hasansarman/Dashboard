@@ -2,6 +2,17 @@
 
 use Illuminate\Routing\Router;
 
+$router->get('/localex/{locale}', [
+    'as' => 'dashboard.locale',
+    'uses' => 'DashboardController@locale',
+
+]);
+/** @var Router $router */
+$router->get('/', [
+    'as' => 'dashboard.index',
+    'uses' => 'DashboardController@index',
+    'middleware' => 'can:dashboard.index',
+]);
 /** @var Router $router */
 $router->get('/', [
     'as' => 'dashboard.index',

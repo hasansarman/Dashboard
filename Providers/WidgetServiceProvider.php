@@ -7,14 +7,12 @@ use Modules\Dashboard\Composers\WidgetViewComposer;
 
 class WidgetServiceProvider extends ServiceProvider
 {
-    protected $defer = true;
-
     public function register()
     {
-        $this->app->singleton('Modules\Dashboard\Composers\WidgetViewComposer', function () {
+        $this->app->singleton(WidgetViewComposer::class, function () {
             return new WidgetViewComposer();
         });
 
-        $this->app['view']->composer('dashboard::admin.dashboard', 'Modules\Dashboard\Composers\WidgetViewComposer');
+        $this->app['view']->composer('dashboard::admin.dashboard', WidgetViewComposer::class);
     }
 }
