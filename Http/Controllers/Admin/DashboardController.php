@@ -21,7 +21,7 @@ class DashboardController extends AdminBaseController
      * @var Authentication
      */
     private $auth;
-    private $notification;
+private $notification;
     /**
      * @param RepositoryInterface $modules
      * @param WidgetRepository $widget
@@ -54,10 +54,10 @@ class DashboardController extends AdminBaseController
         $this->requireAssets();
 
         $widget = $this->widget->findForUser($this->auth->id());
-
-
+        
+        
         //$foo=new \Modules\Notification\Repositories\NotificationRepository();
-        $notifications = $this->notification->allUnreadForUser(Auth::user()->id);
+             $notifications = $this->notification->allUnreadForUser(Auth::user()->id);
 //$this->notification->push('New subscription', 'Someone has subscribed!', 'fa fa-hand-peace-o text-green', route('admin.user.user.index'));
         $customWidgets = json_encode(null);
         if ($widget) {

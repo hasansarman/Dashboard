@@ -13,12 +13,6 @@ $router->get('/', [
     'uses' => 'DashboardController@index',
     'middleware' => 'can:dashboard.index',
 ]);
-/** @var Router $router */
-$router->get('/', [
-    'as' => 'dashboard.index',
-    'uses' => 'DashboardController@index',
-    'middleware' => 'can:dashboard.index',
-]);
 
 $router->group(['prefix' => '/dashboard'], function (Router $router) {
     $router->post('grid', [
